@@ -7,7 +7,7 @@ convolução de dois sinais.
 
 ```
 $ git clone https://github.com/icaro-meneses/convolve-overlap-and-add.git
-$ cd conv-overlap-and-add
+$ cd convolve-overlap-and-add
 $ make build
 $ ./conv_ovp_add
 ```
