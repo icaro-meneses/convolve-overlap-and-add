@@ -12,3 +12,4 @@ $ make build
 $ ./conv_ovp_add
 ```
 
+O código ainda requer correções.
