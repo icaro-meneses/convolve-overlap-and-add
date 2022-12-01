@@ -181,6 +181,7 @@ convolve_overlap_and_add(float* x_n,
 	int x_padded_size = x_size + (block_size - (x_size % block_size));
 	int conv_block_size = block_size + h_size - 1;
 	int num_blocks		= x_padded_size / block_size;
+	int y_total_size	= x_size + h_size - 1;
 
 	printf("x(n) size: %d\nconv_block_size: %d\nnum_blocks: %d\n\n",
 		   x_padded_size,
@@ -203,7 +204,7 @@ convolve_overlap_and_add(float* x_n,
 	printf("\n\n");
 
 	/* Allocation for y(n) */
-	y_n = (float*)malloc(x_padded_size * sizeof(float));
+	y_n = (float*)malloc(y_total_size * sizeof(float));
 
 	if (y_n == NULL)
 	{
@@ -215,13 +216,13 @@ convolve_overlap_and_add(float* x_n,
 	else
 	{
 		/* Initialize with zeros */
-		for (int i = 0; i < x_padded_size; i++)
+		for (int i = 0; i < y_total_size; i++)
 		{
 			y_n[i] = 0.0f;
 		}
 
 		printf("y(n) = ");
-		for (int i = 0; i < x_padded_size; i++)
+		for (int i = 0; i < y_total_size; i++)
 		{
 			printf("%2.2f ", y_n[i]);
 		}
@@ -312,4 +313,21 @@ convolve_overlap_and_add(float* x_n,
 	free(y_blocks);
 
 	return y_n;
+}
+
+void
+output_file(char* file_name, float* signal, int signal_size)
+{
+	FILE* file_pointer = fopen(file_name, "w");
+
+	if (file_pointer == NULL)
+	{
+		printf("Error in creating the file %s\n", file_name);
+		exit(1);
+	}
+
+	for (int n = 0; n < signal_size; n++)
+	{
+		fprintf(file_pointer, "%.4f\n", signal[n]);
+	}
 }

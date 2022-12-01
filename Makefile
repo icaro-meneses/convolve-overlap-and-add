@@ -3,13 +3,15 @@
 #
 
 # Nome do projeto
-PROJ_NAME=conv_ovp_add
+PROJ_NAME=test_convolve
 
 # Arquivos de código fonte .c
 C_SOURCE=$(wildcard *.c)
 
 # Arquivos de cabeçalho .h
 H_SOURCE=$(wildcard *.h)
+
+OCTAVE_SOURCE=$(wildcard *.m)
 
 # Arquivos objeto .o
 OBJ=$(C_SOURCE:.c=.o)
@@ -31,6 +33,7 @@ LIBS=-lm
 #
 # Compilação e Linkagem
 #
+
 
 rebuild-run: clean build run
 
@@ -62,7 +65,7 @@ main.o:	main.c $(H_SOURCE)
 clean:
 	@echo " "
 	@echo "Removing object files and executable files..."
-	rm *.o $(PROJ_NAME)
+	rm *.o *.aux *.log *.tex *.pdf $(PROJ_NAME)
 	@echo "Cleaning Completed."
 	@echo " "
 
@@ -70,6 +73,7 @@ clean:
 run:
 	@echo " "
 	@./$(PROJ_NAME)
+	@octave $(OCTAVE_SOURCE) 
 	@echo " "
 
 .PHONY:	build clean run

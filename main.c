@@ -32,7 +32,7 @@ main(void)
 
 	if (x == NULL)
 	{
-		printf("Error in memory allocation for x(n).\n");
+		printf("Error in memory allocation for x(n) array.\n");
 		exit(1);
 	}
 
@@ -57,7 +57,7 @@ main(void)
 
 	if (h == NULL)
 	{
-		printf("Error in memory allocation for h(n).\n");
+		printf("Error in memory allocation for h(n) array.\n");
 		exit(1);
 	}
 
@@ -94,6 +94,9 @@ main(void)
 		printf("%2.2f ", y[i]);
 	}
 	printf("\n\n");
+
+	printf("Outputting the y(n) signal to a file...\n");
+	output_file("y_n.txt", y, (M + L - 1));
 
 	free(x);
 	free(h);

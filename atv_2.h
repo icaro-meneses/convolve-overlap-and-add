@@ -45,4 +45,7 @@ convolve_overlap_and_add(float* x_n,
 						 int h_size,
 						 int block_size);
 
+void
+output_file(char* file_name, float* signal, int signal_size);
+
 #endif
