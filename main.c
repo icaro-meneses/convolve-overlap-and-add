@@ -85,8 +85,8 @@ main(void)
 	}
 	printf("\n\n");
 
-	// y = convolve_overlap_and_add(x, h, M, L, M0);
-	y = convolve_block(x, h, M, L);
+	y = convolve_overlap_and_add(x, h, M, L, M0);
+	// y = convolve_block(x, h, M, L, N_SIZE);
 
 	printf("\n\ny(n) = ");
 	for (int i = 0; i < (M + L - 1); i++)

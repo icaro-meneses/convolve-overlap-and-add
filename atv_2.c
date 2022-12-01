@@ -19,22 +19,28 @@
 
 #include "atv_2.h"
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
+#include <math.h>
 
 float*
-convolve_block(float* x_block, float* h, int x_size, int h_size)
+convolve_block(float* x_block,
+			   float* h,
+			   int x_size,
+			   int h_size,
+			   int block_size)
 {
 	static float* y_block;
-	
-	y_block = (float*) malloc(N_SIZE * sizeof(float));
-	
+
+	y_block = (float*)malloc(block_size * sizeof(float));
+
 	if (y_block == NULL)
 	{
 		printf("A error ocurred in memory allocation for y block.\n");
 		exit(1);
 	}
 
-	for (int i = 0; i < N_SIZE; i++)
+	for (int i = 0; i < block_size; i++)
 	{
 		y_block[i] = 0.0f;
 	}
@@ -44,7 +50,7 @@ convolve_block(float* x_block, float* h, int x_size, int h_size)
 	int h_initial		  = 0;
 
 	/* Process of convolution */
-	for (int y_index = 0; y_index < N_SIZE; y_index++)
+	for (int y_index = 0; y_index < block_size; y_index++)
 	{
 		operation_counter = y_index;
 
@@ -85,56 +91,81 @@ convolve_block(float* x_block, float* h, int x_size, int h_size)
 }
 
 void
-overlap_and_add(float** blocks_of_y, float* y)
+overlap_and_add(float** blocks_of_y,
+				float* y,
+				int y_size,
+				int y_block_size,
+				int block_size)
 {
-	int block_number = 0;
-	int block_index	 = 1;
+	int block_number		= 0;
+	int block_index			= 0;
+	int overlap_add_counter = y_block_size - block_size;
+	bool overlap_add_flag	= true;
 
-	printf("\nStarting the process of Overlapping and Adding...\n\n");
+	int num_blocks			= y_size / block_size;
 
-	y[0] = blocks_of_y[0][0];
-	printf("y(%d) = y_blocks[%d][%d] = %2.2f\n", 0, 0, 0, y[0]);
+	printf("\nStarting the process of Overlapping and Adding...\n");
+	printf("block_size = %d\t", block_size);
+	printf("num_blocks = %d\t", num_blocks);
+	printf("y_block_size = %d\n\n", y_block_size);
 
-	for (int final_index = 1; final_index < (X_PADDED_SIZE - 1);
-		 final_index++)
+	int y_index = 0;
+	while (y_index < block_size)
 	{
-		if ((block_number + 1) > (NUM_BLOCKS - 1))
+		y[y_index] = blocks_of_y[block_number][block_index];
+		printf("y(%d) = y_blocks[%d][%d] = %2.2f\n",
+			   y_index,
+			   block_number,
+			   block_index,
+			   y[y_index]);
+
+		y_index++;
+		block_index++;
+	}
+
+	/* Overlap and Add */
+	while (overlap_add_flag)
+	{
+		if (block_index > (y_block_size - 1))
 		{
-			break;
+			block_number++;
+			block_index = block_size;
+			// overlap_add_flag = false;
 		}
 
-		if (final_index % (N_SIZE - 1))
+		if (y_index > y_size - 1)
 		{
-			y[final_index] = blocks_of_y[block_number][block_index];
-			printf("y(%d) = y_blocks[%d][%d] = %2.2f\n",
-				   final_index,
-				   block_number,
-				   block_index,
-				   y[final_index]);
-
-			block_index++;
+			printf("Finished overlapping and Add..\n\n");
+			overlap_add_flag = false;
 		}
 
 		else
 		{
-			y[final_index] = blocks_of_y[block_number][block_index] +
-							 blocks_of_y[block_number + 1][0];
-			printf("Overlaping and Adding:\n");
-			printf("y(%d) = y_blocks[%d][%d] + y_blocks[%d][%d] = "
-				   "%2.2f\n",
-				   final_index,
+			y[y_index] = blocks_of_y[block_number][block_index] +
+						 blocks_of_y[block_number + 1]
+									[block_index % block_size];
+			printf("Overlap and Adding: blk_idx=%d "
+				   "counter=%d\n",
+				   block_index,
+				   overlap_add_counter);
+			printf("y(%d) = y_blocks[%d][%d] + y_blocks[%d][%d] = ",
+				   y_index,
 				   block_number,
 				   block_index,
 				   block_number + 1,
-				   0,
-				   y[final_index]);
+				   (block_index % block_size));
+			printf("%.2f + %.2f = %.2f\n",
+				   blocks_of_y[block_number][block_index],
+				   blocks_of_y[block_number + 1]
+							  [block_index % block_size],
+				   y[y_index]);
 
-			block_number++;
-			block_index = 1;
+			y_index++;
+			block_index++;
 		}
 	}
 
-	y[X_PADDED_SIZE - 1] = blocks_of_y[NUM_BLOCKS - 1][N_SIZE - 1];
+	y[y_index] = blocks_of_y[block_number][block_index];
 }
 
 float*
@@ -147,20 +178,36 @@ convolve_overlap_and_add(float* x_n,
 	float **y_blocks, **x_blocks;
 	float* y_n;
 
-	/* Zero Padding for x(n) */
-	x_n = realloc(x_n, X_PADDED_SIZE * sizeof(float));
+	int x_padded_size = x_size + (block_size - (x_size % block_size));
+	int conv_block_size = block_size + h_size - 1;
+	int num_blocks		= x_padded_size / block_size;
 
-	for (int i = x_size; i < X_PADDED_SIZE; i++)
+	printf("x(n) size: %d\nconv_block_size: %d\nnum_blocks: %d\n\n",
+		   x_padded_size,
+		   conv_block_size,
+		   num_blocks);
+
+	/* Zero Padding for x(n) */
+	x_n = realloc(x_n, x_padded_size * sizeof(float));
+
+	for (int i = x_size; i < x_padded_size; i++)
 	{
 		x_n[i] = 0.0f;
 	}
 
+	printf("ZERO PADDING:\nx(n) = ");
+	for (int i = 0; i < x_padded_size; i++)
+	{
+		printf("%2.2f ", x_n[i]);
+	}
+	printf("\n\n");
+
 	/* Allocation for y(n) */
-	y_n = (float*)malloc(X_PADDED_SIZE * sizeof(float));
+	y_n = (float*)malloc(x_padded_size * sizeof(float));
 
 	if (y_n == NULL)
 	{
-		/* If is'nt possible to allocate memory */
+		/* If isn't possible to allocate memory */
 		printf("Error in memory allocation for h(n).\n");
 		exit(1);
 	}
@@ -168,22 +215,30 @@ convolve_overlap_and_add(float* x_n,
 	else
 	{
 		/* Initialize with zeros */
-		for (int i = 0; i < X_PADDED_SIZE; i++)
+		for (int i = 0; i < x_padded_size; i++)
 		{
 			y_n[i] = 0.0f;
 		}
+
+		printf("y(n) = ");
+		for (int i = 0; i < x_padded_size; i++)
+		{
+			printf("%2.2f ", y_n[i]);
+		}
+		printf("\n\n");
 	}
 
-	/* Division of x(n) in N blocks */
-	x_blocks = (float**)malloc(N_SIZE * sizeof(float*));
+	/* Division of x(n) in num_blocks */
+	x_blocks = (float**)malloc(num_blocks * sizeof(float*));
 
-	for (int i = 0; i < NUM_BLOCKS; i++)
+	printf("%d of blocks of %d elements\n", num_blocks, block_size);
+	for (int i = 0; i < num_blocks; i++)
 	{
 		x_blocks[i] = (float*)malloc(block_size * sizeof(float));
 	}
 
-	/* Separate each M0 blocks in a 2d array */
-	for (int block = 0; block < NUM_BLOCKS; block++)
+	/* Separate each block_size blocks in a 2d array */
+	for (int block = 0; block < num_blocks; block++)
 	{
 		for (int index = 0; index < block_size; index++)
 		{
@@ -193,9 +248,9 @@ convolve_overlap_and_add(float* x_n,
 	}
 
 	printf("x_blocks:\n");
-	for (int i = 0; i < NUM_BLOCKS; i++)
+	for (int i = 0; i < num_blocks; i++)
 	{
-		for (int j = 0; j < M0; j++)
+		for (int j = 0; j < block_size; j++)
 		{
 			printf("%6.2f ", x_blocks[i][j]);
 		}
@@ -205,33 +260,36 @@ convolve_overlap_and_add(float* x_n,
 
 	/* Create a block for each
 	 * convolution of x_blocks * h_n -> y_blocks */
-	y_blocks = (float**)malloc(NUM_BLOCKS * sizeof(float*));
+	y_blocks = (float**)malloc(num_blocks * sizeof(float*));
 
-	for (int i = 0; i < NUM_BLOCKS; i++)
+	for (int i = 0; i < num_blocks; i++)
 	{
-		y_blocks[i] = (float*)malloc(N_SIZE * sizeof(float));
+		y_blocks[i] = (float*)malloc(block_size * sizeof(float));
 	}
 
 	/* Initialize with zeros */
-	for (int i = 0; i < NUM_BLOCKS; i++)
+	for (int i = 0; i < num_blocks; i++)
 	{
-		for (int j = 0; j < N_SIZE; j++)
+		for (int j = 0; j < block_size; j++)
 		{
 			y_blocks[i][j] = 0.0f;
 		}
 	}
 
 	/* Process of convolution of each block */
-	for (int block = 0; block < NUM_BLOCKS; block++)
+	for (int block = 0; block < num_blocks; block++)
 	{
-		y_blocks[block] =
-			convolve_block(x_blocks[block], h_n, block_size, h_size);
+		y_blocks[block] = convolve_block(x_blocks[block],
+										 h_n,
+										 block_size,
+										 h_size,
+										 conv_block_size);
 	}
 
 	printf("\n\ny_blocks:\n");
-	for (int i = 0; i < NUM_BLOCKS; i++)
+	for (int i = 0; i < num_blocks; i++)
 	{
-		for (int j = 0; j < N_SIZE; j++)
+		for (int j = 0; j < conv_block_size; j++)
 		{
 			printf("%6.2f ", y_blocks[i][j]);
 		}
@@ -239,9 +297,13 @@ convolve_overlap_and_add(float* x_n,
 	}
 	printf("\n\n");
 
-	overlap_and_add(y_blocks, y_n);
+	overlap_and_add(y_blocks,
+					y_n,
+					x_padded_size,
+					conv_block_size,
+					block_size);
 
-	for (int i = 0; i < NUM_BLOCKS; i++)
+	for (int i = 0; i < num_blocks; i++)
 	{
 		free(x_blocks[i]);
 		free(y_blocks[i]);
