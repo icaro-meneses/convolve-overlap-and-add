@@ -27,13 +27,19 @@ $ cd convolve-overlap-and-add
 $ make build
 ```
 
-3. Execute o programa
+3. Para executar o programa:
 
 ```
 $ ./conv_ovp_add
 ```
 
-4. Caso precise fazer a limpeza dos arquivos, execute: `make clean`
+4. Para executar o programa e exportar o arquivo em .pdf:
+
+```
+$ make run
+```
+
+5. Caso precise fazer a limpeza dos arquivos, execute: `make clean`
 
 **Nota:** O código ainda requer testes.
 
