@@ -20,34 +20,39 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "atv_2.h"
+#include <math.h>
+
+#define PI_CONST (3.14159265358979323846264338327950288)
 
 int
 main(void)
 {
-	int m = 25, l = 2, m0 = 7;
+	int m = 5096, l = 2, m0 = 128;
 	int n = m + l - 1;
 
 	float *x, *h;
+	float *e, *r;
 	float* y;
 
-	x					   = create_signal(m, "x(n)");
-	h					   = create_signal(l, "h(n)");
+	x		   = create_signal(m, "x(n)");
+	h		   = create_signal(l, "h(n)");
 
-	float sample_X_array[] = {-1.86f, -1.62f, 4.41f, 1.40f,	 -3.40f,
-							  1.47f,  0.64f,  0.59f, 4.70f,	 3.57f,
-							  -0.43f, 4.20f,  2.04f, -2.83f, -4.65f,
-							  0.99f,  -1.98f, 1.67f, -4.67f, 4.18f,
-							  -4.37f, 0.68f,  1.79f, 0.63f,	 -3.85f};
-	float sample_H_array[] = {3.83f, 0.01f};
+	e		   = create_signal(m, "e(n)");
+	r		   = create_signal(m, "r(n)");
+
+	float freq = 1.0f / 21.0f;
 
 	for (int i = 0; i < m; i++)
 	{
-		x[i] = sample_X_array[i];
+		x[i] = cosf(2 * PI_CONST * freq * i);
+		e[i] = 0.2f * powf(-1.0f, i);
+		r[i] = x[i] + e[i];
 	}
+	output_file("r_n.txt", r, m);
 
 	for (int i = 0; i < l; i++)
 	{
-		h[i] = sample_H_array[i];
+		h[i] = 0.5f;
 	}
 
 #ifdef DEBUG_MODE
@@ -66,7 +71,7 @@ main(void)
 	printf("\n\n");
 #endif
 
-	y = convolve_overlap_and_add(x, h, m, l, m0);
+	y = convolve_overlap_and_add(r, h, m, l, m0);
 
 	printf("\n\ny(n) = ");
 	for (int i = 0; i < n; i++)
@@ -75,9 +80,11 @@ main(void)
 	}
 	printf("\n\n");
 
-	printf("Outputting the y(n) signal to a file...\n");
+	printf("Outputting the y(n) and r(n)"
+		   "signals to their files...\n");
 	output_file("y_n.txt", y, n);
 
+	free(e);
 	free(h);
 	free(y);
 

@@ -21,7 +21,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <math.h>
 
 float*
 create_signal(int signal_size, char* signal_name)
