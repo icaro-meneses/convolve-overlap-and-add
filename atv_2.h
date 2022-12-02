@@ -23,12 +23,6 @@
 float*
 create_signal(int signal_size, char* signal_name);
 
-void
-sum_signals(float* signal_A,
-			float* signal_B,
-			float* signal_result,
-			int size_result);
-
 float*
 convolve_block(float* x_block,
 			   float* h,

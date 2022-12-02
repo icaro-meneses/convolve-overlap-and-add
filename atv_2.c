@@ -48,18 +48,6 @@ create_signal(int signal_size, char* signal_name)
 	return signal_pointer;
 }
 
-void
-sum_signals(float* signal_A,
-			float* signal_B,
-			float* signal_result,
-			int size_result)
-{
-	for (int i = 0; i < size_result; i++)
-	{
-		signal_result[i] = signal_A[i] + signal_B[i];
-	}
-}
-
 float*
 convolve_block(float* x_block,
 			   float* h,
