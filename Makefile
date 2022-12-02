@@ -34,8 +34,6 @@ LIBS=-lm
 # Compilação e Linkagem
 #
 
-rebuild: clean build
-
 graph: 
 	@echo " "
 	@octave $(OCTAVE_SOURCE)
@@ -79,5 +77,5 @@ run:
 	@./$(PROJ_NAME)
 	@echo " "
 
-.PHONY:	build clean run rebuild graph
+.PHONY:	build clean run graph
 

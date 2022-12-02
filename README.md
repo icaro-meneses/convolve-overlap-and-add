@@ -21,13 +21,13 @@ $ git clone https://github.com/icaro-meneses/convolve-overlap-and-add.git
 $ cd convolve-overlap-and-add
 ```
 
-2. Realize a build do programa
+2. Para realizar a compilação do programa
 
 ```
 $ make build
 ```
 
-3. Para executar o programa:
+3. Para executar somente o programa:
 
 ```
 $ ./conv_ovp_add
@@ -36,7 +36,7 @@ $ ./conv_ovp_add
 4. Para executar o programa e exportar o arquivo em .pdf:
 
 ```
-$ make run
+$ make run graph
 ```
 
 5. Caso precise fazer a limpeza dos arquivos, execute: `make clean`
