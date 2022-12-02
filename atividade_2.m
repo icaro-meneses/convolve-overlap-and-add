@@ -18,7 +18,7 @@ plot(n, y_n, 'r', 'LineWidth', 1);
 hold on;
 xlabel('n', 'fontsize', 12);
 ylabel('y(n)', 'fontsize', 12);
-title({'Resultado da convolução', 'y(n) = x(n) * h(n)'}, 'fontsize', 16);
+title({'Resultado da convolução', 'y(n) = x(n) * h(n)'}, 'fontsize', 12);
 grid on;
 hold off;
 

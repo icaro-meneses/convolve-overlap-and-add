@@ -34,8 +34,12 @@ LIBS=-lm
 # Compilação e Linkagem
 #
 
+rebuild: clean build
 
-rebuild-run: clean build run
+graph: 
+	@echo " "
+	@octave $(OCTAVE_SOURCE)
+	@echo " "
 
 # 1º Passo: Início do processo de build
 build:	$(PROJ_NAME)
@@ -73,8 +77,7 @@ clean:
 run:
 	@echo " "
 	@./$(PROJ_NAME)
-	@octave $(OCTAVE_SOURCE) 
 	@echo " "
 
-.PHONY:	build clean run
+.PHONY:	build clean run rebuild graph
 

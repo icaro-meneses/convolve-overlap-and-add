@@ -24,79 +24,62 @@
 int
 main(void)
 {
+	int m = 10, l = 4, m0 = 3;
+	int n = m + l - 1;
+
 	float *x, *h;
 	float* y;
 
-	x = (float*)malloc(M * sizeof(float));
-	h = (float*)malloc(L * sizeof(float));
+	x					   = create_signal(m, "x(n)");
+	h					   = create_signal(l, "h(n)");
 
-	if (x == NULL)
+	float sample_X_array[] = {1.07f,
+							  -4.77f,
+							  1.16f,
+							  -3.19f,
+							  -1.79f,
+							  4.47f,
+							  -2.99f,
+							  3.52f,
+							  -4.19f,
+							  1.55f};
+	float sample_H_array[] = {2.06f, -0.65f, -1.57f, -0.32f};
+
+	for (int i = 0; i < m; i++)
 	{
-		printf("Error in memory allocation for x(n) array.\n");
-		exit(1);
+		x[i] = sample_X_array[i];
 	}
 
-	else
+	for (int i = 0; i < l; i++)
 	{
-		float sample_X_array[M] = {1.07f,
-								   -4.77f,
-								   1.16f,
-								   -3.19f,
-								   -1.79f,
-								   4.47f,
-								   -2.99f,
-								   3.52f,
-								   -4.19f,
-								   1.55f};
-
-		for (int i = 0; i < M; i++)
-		{
-			x[i] = sample_X_array[i];
-		}
-	}
-
-	if (h == NULL)
-	{
-		printf("Error in memory allocation for h(n) array.\n");
-		exit(1);
-	}
-
-	else
-	{
-		float sample_H_array[L] = {2.06f, -0.65f, -1.57f, -0.32f};
-
-		for (int i = 0; i < L; i++)
-		{
-			h[i] = sample_H_array[i];
-		}
+		h[i] = sample_H_array[i];
 	}
 
 	printf("x(n) = ");
-	for (int i = 0; i < M; i++)
+	for (int i = 0; i < m; i++)
 	{
 		printf("%2.2f ", x[i]);
 	}
 	printf("\n");
 
 	printf("h(n) = ");
-	for (int i = 0; i < L; i++)
+	for (int i = 0; i < l; i++)
 	{
 		printf("%2.2f ", h[i]);
 	}
 	printf("\n\n");
 
-	y = convolve_overlap_and_add(x, h, M, L, M0);
-	// y = convolve_block(x, h, M, L, N_SIZE);
+	y = convolve_overlap_and_add(x, h, m, l, m0);
 
 	printf("\n\ny(n) = ");
-	for (int i = 0; i < (M + L - 1); i++)
+	for (int i = 0; i < n; i++)
 	{
 		printf("%2.2f ", y[i]);
 	}
 	printf("\n\n");
 
 	printf("Outputting the y(n) signal to a file...\n");
-	output_file("y_n.txt", y, (M + L - 1));
+	output_file("y_n.txt", y, n);
 
 	free(x);
 	free(h);
