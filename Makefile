@@ -41,7 +41,8 @@ graph:
 
 # 1º Passo: Início do processo de build
 
-debug: CC_FLAGS+=-DDEBUG_MODE 
+debug: CC_FLAGS+=-DDEBUG_MODE
+debug: CC_FLAGS+=-g
 debug: $(PROJ_NAME)
 
 release: $(PROJ_NAME)

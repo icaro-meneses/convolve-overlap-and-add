@@ -142,75 +142,203 @@ overlap_and_add(float** blocks_of_y,
 {
 	int block_number	  = 0;
 	int block_index		  = 0;
-	bool overlap_add_flag = true;
+	int ovp_add_counter	  = 0;
 
+	/* Operation Mode
+	 * Mode 0: NORMAL
+	 * Mode 1: OVERLAP AND ADD
+	 * Mode 2: FINISH
+	 */
+	char operation_mode	  = 0;
+	bool overlap_add_flag = true;
 	int num_blocks		  = y_size / block_size;
 
 #ifdef DEBUG_MODE
 	printf("\nStarting the process of Overlapping and Adding...\n");
 	printf("block_size = %d\t", block_size);
 	printf("num_blocks = %d\t", num_blocks);
-	printf("y_block_size = %d\n\n", y_block_size);
+	printf("y_block_size = %d\t", y_block_size);
+	printf("y_size = %d\n\n", y_size);
 #endif
 
 	int y_index = 0;
-	while (y_index < block_size)
-	{
-		y[y_index] = blocks_of_y[block_number][block_index];
-
-#ifdef DEBUG_MODE
-		printf("y(%d) = y_blocks[%d][%d] = %2.2f\n",
-			   y_index,
-			   block_number,
-			   block_index,
-			   y[y_index]);
-#endif
-
-		y_index++;
-		block_index++;
-	}
-
-	/* Overlap and Add */
+	int head	= block_size;
+	int tail	= 0;
 	while (overlap_add_flag)
 	{
-		if (block_index > (y_block_size - 1))
+		/* Test for end of y(n) */
+		if (y_index > (y_size - 1))
 		{
-			block_number++;
-			block_index = block_size;
-		}
-
-		if (y_index > y_size - 1)
-		{
+#ifdef DEBUG_MODE
+			printf("Overlap-and-Add finished...\n");
+#endif
 			overlap_add_flag = false;
 		}
 
 		else
 		{
-			y[y_index] = blocks_of_y[block_number][block_index] +
-						 blocks_of_y[block_number + 1]
-									[block_index % block_size];
+			/* Works like a Finite State Machine */
+			switch (operation_mode)
+			{
+				case 0: /* NORMAL Mode */
+					if (block_index < block_size)
+					{
+						y[y_index] =
+							blocks_of_y[block_number][block_index];
 
 #ifdef DEBUG_MODE
-			printf("Overlap and Adding: blk_idx=%d\n", block_index);
-			printf("y(%d) = y_blocks[%d][%d] + y_blocks[%d][%d] = ",
-				   y_index,
-				   block_number,
-				   block_index,
-				   block_number + 1,
-				   (block_index % block_size));
-			printf("%.2f + %.2f = %.2f\n",
-				   blocks_of_y[block_number][block_index],
-				   blocks_of_y[block_number + 1]
-							  [block_index % block_size],
-				   y[y_index]);
+						printf("NORMAL Mode:\n");
+						printf("y(%d) = y_blocks[%d][%d] = %2.2f\n",
+							   y_index,
+							   block_number,
+							   block_index,
+							   y[y_index]);
 #endif
 
-			y_index++;
-			block_index++;
+						y_index++;
+						block_index++;
+					}
+
+					else
+					{
+#ifdef DEBUG_MODE
+						printf("Going to OVERLAP AND ADD Mode\n\n");
+#endif
+						operation_mode = 1;
+					}
+					break;
+
+				case 1: /* OVERLAP AND ADD Mode*/
+					if ((y_index > (y_size - block_size + 1)) &&
+						(ovp_add_counter >= (num_blocks - 1)))
+					{
+						block_index = head;
+						head		= block_size;
+						tail		= 0;
+
+#ifdef DEBUG_MODE
+						printf("Number of Overlap-and-Add "
+							   "operations > %d:  %d\n",
+							   num_blocks - 1,
+							   ovp_add_counter);
+						printf("Resetting variables to: "
+							   "blk_idx=%d\tblk_num=%d\t"
+							   "head=%d\ttail=%d\n",
+							   block_index,
+							   block_number,
+							   head,
+							   tail);
+						printf("Going to FINISH Mode\n\n");
+#endif
+						operation_mode = 2;
+					}
+
+					else if (head < y_block_size)
+					{
+#ifdef DEBUG_MODE
+						printf(
+							"Attempting to perform operations with:\n"
+							"blk_num=%d\tblk_idx=%d\thead=%d\t"
+							"tail=%d\n",
+							block_number,
+							block_index,
+							head,
+							tail);
+#endif
+
+						y[y_index] =
+							blocks_of_y[block_number][head] +
+							blocks_of_y[block_number + 1][tail];
+
+#ifdef DEBUG_MODE
+						printf("OVERLAP AND ADD Mode:\n"
+							   "blk_idx=%d\thead=%d\ttail=%d\n",
+							   block_index,
+							   head,
+							   tail);
+						printf("y(%d) = y_blocks[%d][%d] + "
+							   "y_blocks[%d][%d] = ",
+							   y_index,
+							   block_number,
+							   head,
+							   block_number + 1,
+							   tail);
+						printf("%.2f + %.2f = %.2f\n",
+							   blocks_of_y[block_number][head],
+							   blocks_of_y[block_number + 1][tail],
+							   y[y_index]);
+#endif
+
+						y_index++;
+						block_index++;
+
+						head++;
+						tail++;
+					}
+
+					else
+					{
+						block_index = tail;
+						block_number++;
+						head = block_size;
+						tail = 0;
+						ovp_add_counter++;
+
+#ifdef DEBUG_MODE
+						printf("Resetting variables to: "
+							   "blk_idx=%d\tblk_num=%d\t"
+							   "head=%d\ttail=%d\n",
+							   block_index,
+							   block_number,
+							   head,
+							   tail);
+						printf("Overlap-and-Add operations "
+							   "performed: %d\n",
+							   ovp_add_counter);
+						printf("Going to NORMAL Mode\n\n");
+#endif
+						operation_mode = 0;
+					}
+					break;
+
+				case 2: /* FINISH Mode*/
+					if (y_index < y_size)
+					{
+						y[y_index] =
+							blocks_of_y[block_number][block_index];
+
+#ifdef DEBUG_MODE
+						printf("FINISH Mode:\n");
+						printf("y(%d) = y_blocks[%d][%d] = %2.2f\n",
+							   y_index,
+							   block_number,
+							   block_index,
+							   y[y_index]);
+#endif
+
+						y_index++;
+						block_index++;
+					}
+
+					else
+					{
+#ifdef DEBUG_MODE
+						printf("Overlap-and-Add finished...\n");
+#endif
+						overlap_add_flag = false;
+					}
+
+					break;
+
+				default:
+#ifdef DEBUG_MODE
+					printf("A error ocurred in"
+						   " Overlapping and Adding.\n");
+#endif
+					break;
+			}
 		}
 	}
-
-	y[y_index] = blocks_of_y[block_number][block_index];
 }
 
 float*
@@ -229,7 +357,8 @@ convolve_overlap_and_add(float* x_n,
 	int y_total_size	= x_size + h_size - 1;
 
 #ifdef DEBUG_MODE
-	printf("x(n) size: %d\nconv_block_size: %d\nnum_blocks: %d\n\n",
+	printf("x(n) padded size: %d\nconv_block_size: %d\nnum_blocks: "
+		   "%d\n\n",
 		   x_padded_size,
 		   conv_block_size,
 		   num_blocks);
@@ -282,6 +411,12 @@ convolve_overlap_and_add(float* x_n,
 
 	/* Division of x(n) in num_blocks */
 	x_blocks = (float**)malloc(num_blocks * sizeof(float*));
+	if (x_blocks == NULL)
+	{
+		printf("Error in memory allocation for %s 2d array.\n",
+			   "y_blocks");
+		exit(1);
+	}
 
 #ifdef DEBUG_MODE
 	printf("%d of blocks of %d elements\n", num_blocks, block_size);
@@ -289,6 +424,14 @@ convolve_overlap_and_add(float* x_n,
 	for (int i = 0; i < num_blocks; i++)
 	{
 		x_blocks[i] = (float*)malloc(block_size * sizeof(float));
+
+		if (x_blocks[i] == NULL)
+		{
+			printf("Error in memory allocation for %s[%d] array.\n",
+				   "x_blocks",
+				   i);
+			exit(1);
+		}
 	}
 
 	/* Separate each block_size blocks in a 2d array */
@@ -318,15 +461,30 @@ convolve_overlap_and_add(float* x_n,
 	 * convolution of x_blocks * h_n -> y_blocks */
 	y_blocks = (float**)malloc(num_blocks * sizeof(float*));
 
+	if (y_blocks == NULL)
+	{
+		printf("Error in memory allocation for %s 2d array.\n",
+			   "y_blocks");
+		exit(1);
+	}
+
 	for (int i = 0; i < num_blocks; i++)
 	{
-		y_blocks[i] = (float*)malloc(block_size * sizeof(float));
+		y_blocks[i] = (float*)malloc(conv_block_size * sizeof(float));
+
+		if (y_blocks[i] == NULL)
+		{
+			printf("Error in memory allocation for %s[%d] array.\n",
+				   "y_blocks",
+				   i);
+			exit(1);
+		}
 	}
 
 	/* Initialize with zeros */
 	for (int i = 0; i < num_blocks; i++)
 	{
-		for (int j = 0; j < block_size; j++)
+		for (int j = 0; j < conv_block_size; j++)
 		{
 			y_blocks[i][j] = 0.0f;
 		}
@@ -357,7 +515,7 @@ convolve_overlap_and_add(float* x_n,
 
 	overlap_and_add(y_blocks,
 					y_n,
-					x_padded_size,
+					y_total_size,
 					conv_block_size,
 					block_size);
 
@@ -367,6 +525,8 @@ convolve_overlap_and_add(float* x_n,
 		free(y_blocks[i]);
 	}
 
+	free(x_n);
+	free(x_blocks);
 	free(y_blocks);
 
 	return y_n;
@@ -387,4 +547,6 @@ output_file(char* file_name, float* signal, int signal_size)
 	{
 		fprintf(file_pointer, "%.4f\n", signal[n]);
 	}
+
+	fclose(file_pointer);
 }

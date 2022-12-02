@@ -20,10 +20,6 @@
 #ifndef LIB_ATV_2_H
 #define LIB_ATV_2_H
 
-#define M  10
-#define L  4
-#define M0 3
-
 float*
 create_signal(int signal_size, char* signal_name);
 
