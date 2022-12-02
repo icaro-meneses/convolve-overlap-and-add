@@ -65,7 +65,7 @@ main.o:	main.c $(H_SOURCE)
 clean:
 	@echo " "
 	@echo "Removing object files and executable files..."
-	rm *.o *.aux *.log *.tex *.pdf $(PROJ_NAME)
+	rm *.o *.aux *.log *.tex *.pdf *.txt $(PROJ_NAME)
 	@echo "Cleaning Completed."
 	@echo " "
 

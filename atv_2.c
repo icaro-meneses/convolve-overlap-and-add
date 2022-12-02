@@ -24,6 +24,43 @@
 #include <math.h>
 
 float*
+create_signal(int signal_size, char* signal_name)
+{
+	float* signal_pointer;
+
+	signal_pointer = (float*)malloc(signal_size * sizeof(float));
+
+	if (signal_pointer == NULL)
+	{
+		printf("Error in memory allocation for %s array.\n",
+			   signal_name);
+		exit(1);
+	}
+
+	else
+	{
+		for (int i = 0; i < signal_size; i++)
+		{
+			signal_pointer[i] = 0.0f;
+		}
+	}
+
+	return signal_pointer;
+}
+
+void
+sum_signals(float* signal_A,
+			float* signal_B,
+			float* signal_result,
+			int size_result)
+{
+	for (int i = 0; i < size_result; i++)
+	{
+		signal_result[i] = signal_A[i] + signal_B[i];
+	}
+}
+
+float*
 convolve_block(float* x_block,
 			   float* h,
 			   int x_size,
