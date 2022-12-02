@@ -24,7 +24,7 @@
 int
 main(void)
 {
-	int m = 12, l = 2, m0 = 4;
+	int m = 25, l = 2, m0 = 7;
 	int n = m + l - 1;
 
 	float *x, *h;
@@ -33,19 +33,12 @@ main(void)
 	x					   = create_signal(m, "x(n)");
 	h					   = create_signal(l, "h(n)");
 
-	float sample_X_array[] = {-0.27f,
-							  1.06f,
-							  1.98f,
-							  4.41f,
-							  4.01f,
-							  3.57f,
-							  2.25f,
-							  -4.96f,
-							  4.39f,
-							  -0.40f,
-							  2.08f,
-							  3.66f};
-	float sample_H_array[] = {-1.27f, 1.76f};
+	float sample_X_array[] = {-1.86f, -1.62f, 4.41f, 1.40f,	 -3.40f,
+							  1.47f,  0.64f,  0.59f, 4.70f,	 3.57f,
+							  -0.43f, 4.20f,  2.04f, -2.83f, -4.65f,
+							  0.99f,  -1.98f, 1.67f, -4.67f, 4.18f,
+							  -4.37f, 0.68f,  1.79f, 0.63f,	 -3.85f};
+	float sample_H_array[] = {3.83f, 0.01f};
 
 	for (int i = 0; i < m; i++)
 	{

@@ -11,6 +11,7 @@ C_SOURCE=$(wildcard *.c)
 # Arquivos de cabeçalho .h
 H_SOURCE=$(wildcard *.h)
 
+# Arquivo do octave
 OCTAVE_SOURCE=$(wildcard *.m)
 
 # Arquivos objeto .o
@@ -36,6 +37,7 @@ LIBS=-lm
 
 graph: 
 	@echo " "
+	@mkdir -p ./results
 	@octave $(OCTAVE_SOURCE)
 	@echo " "
 
@@ -72,7 +74,8 @@ main.o:	main.c $(H_SOURCE)
 clean:
 	@echo " "
 	@echo "Removing object files and executable files..."
-	rm *.o *.aux *.log *.tex *.pdf *.txt $(PROJ_NAME)
+	rm *.o $(PROJ_NAME)
+	rm -rf ./results
 	@echo "Cleaning Completed."
 	@echo " "
 

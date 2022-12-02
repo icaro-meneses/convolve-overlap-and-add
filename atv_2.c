@@ -181,7 +181,31 @@ overlap_and_add(float** blocks_of_y,
 			switch (operation_mode)
 			{
 				case 0: /* NORMAL Mode */
-					if (block_index < block_size)
+					if ((y_index > (y_size - block_size + 1)) &&
+						(ovp_add_counter >= block_size))
+					{
+						block_index = head;
+						head		= block_size;
+						tail		= 0;
+
+#ifdef DEBUG_MODE
+						printf("Number of Overlap-and-Add "
+							   "operations > %d:  %d\n",
+							   num_blocks - 1,
+							   ovp_add_counter);
+						printf("Resetting variables to: "
+							   "blk_idx=%d\tblk_num=%d\t"
+							   "head=%d\ttail=%d\n",
+							   block_index,
+							   block_number,
+							   head,
+							   tail);
+						printf("Going to FINISH Mode\n\n");
+#endif
+						operation_mode = 2;
+					}
+
+					else if (block_index < block_size)
 					{
 						y[y_index] =
 							blocks_of_y[block_number][block_index];
@@ -210,7 +234,7 @@ overlap_and_add(float** blocks_of_y,
 
 				case 1: /* OVERLAP AND ADD Mode*/
 					if ((y_index > (y_size - block_size + 1)) &&
-						(ovp_add_counter >= (num_blocks - 1)))
+						(ovp_add_counter >= num_blocks))
 					{
 						block_index = head;
 						head		= block_size;

@@ -22,6 +22,6 @@ title({'Resultado da convolução', 'y(n) = x(n) * h(n)'}, 'fontsize', 12);
 grid on;
 hold off;
 
-print (y_fig, "y_n_plot.pdf", "-dpdflatexstandalone");
+print (y_fig, "./results/y_n_plot.pdf", "-dpdflatexstandalone");
 system ("pdflatex y_n_plot");
 open y_n_plot.pdf
