@@ -40,7 +40,11 @@ graph:
 	@echo " "
 
 # 1º Passo: Início do processo de build
-build:	$(PROJ_NAME)
+
+debug: CC_FLAGS+=-DDEBUG_MODE 
+debug: $(PROJ_NAME)
+
+release: $(PROJ_NAME)
 
 # 3º Passo: Linkagem
 $(PROJ_NAME):	$(OBJ)
@@ -76,6 +80,8 @@ run:
 	@echo " "
 	@./$(PROJ_NAME)
 	@echo " "
+
+all: release graph
 
 .PHONY:	build clean run graph
 

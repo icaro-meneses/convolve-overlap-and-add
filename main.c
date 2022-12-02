@@ -55,6 +55,7 @@ main(void)
 		h[i] = sample_H_array[i];
 	}
 
+#ifdef DEBUG_MODE
 	printf("x(n) = ");
 	for (int i = 0; i < m; i++)
 	{
@@ -68,6 +69,7 @@ main(void)
 		printf("%2.2f ", h[i]);
 	}
 	printf("\n\n");
+#endif
 
 	y = convolve_overlap_and_add(x, h, m, l, m0);
 
