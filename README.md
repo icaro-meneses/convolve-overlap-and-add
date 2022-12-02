@@ -24,13 +24,13 @@ $ cd convolve-overlap-and-add
 2. Para realizar a compilação do programa
 
 ```
-$ make build
+$ make release
 ```
 
 3. Para executar somente o programa:
 
 ```
-$ ./conv_ovp_add
+$ ./conv_ovp_add.x
 ```
 
 4. Para executar o programa e exportar o arquivo em .pdf:
@@ -40,6 +40,11 @@ $ make run graph
 ```
 
 5. Caso precise fazer a limpeza dos arquivos, execute: `make clean`
+
+6. **Extra:** Para realizar a compilação no modo de DEBUG:
+```
+$ make debug
+```
 
 **Nota:** O código ainda requer testes.
 

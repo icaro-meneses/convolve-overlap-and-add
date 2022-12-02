@@ -3,7 +3,7 @@
 #
 
 # Nome do projeto
-PROJ_NAME=test_convolve
+PROJ_NAME=conv_ovp_add.x
 
 # Arquivos de código fonte .c
 C_SOURCE=$(wildcard *.c)
@@ -39,6 +39,7 @@ graph:
 	@echo " "
 	@mkdir -p ./results
 	@octave $(OCTAVE_SOURCE)
+	mv *.aux *.log *.tex *.pdf ./results
 	@echo " "
 
 # 1º Passo: Início do processo de build
@@ -74,7 +75,7 @@ main.o:	main.c $(H_SOURCE)
 clean:
 	@echo " "
 	@echo "Removing object files and executable files..."
-	rm *.o $(PROJ_NAME)
+	rm *.o *.txt $(PROJ_NAME)
 	rm -rf ./results
 	@echo "Cleaning Completed."
 	@echo " "
