@@ -86,7 +86,7 @@ run:
 	@./$(PROJ_NAME)
 	@echo " "
 
-all: release graph
+all: release
 
-.PHONY:	build clean run graph
+.PHONY:	build clean run graph release debug
 

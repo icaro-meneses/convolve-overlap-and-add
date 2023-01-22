@@ -1,4 +1,4 @@
-# Atividade 2
+# Atividade: Convolução Overlap-and-Add
 
 É uma atividade que se trata da implementação da convolução com método Overlap-and-Add, na linguagem C, para realizar a 
 convolução de dois sinais.
